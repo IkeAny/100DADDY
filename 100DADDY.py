@@ -7,7 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\chine\Desktop\PythonScripts\100DADDY\fresh-gravity-419704-25735f1d7172.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name(r'fresh-gravity-419704-25735f1d7172.json', scope)
 client = gspread.authorize(creds)
 sheet = client.open('submissions').sheet1
 
