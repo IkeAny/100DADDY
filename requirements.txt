@@ -26,5 +26,7 @@ gradio
 openai<1.0.0
 pandas
 scikit-learn
-streamlit
+gspread
+oauth2client
 pandas
+streamlit

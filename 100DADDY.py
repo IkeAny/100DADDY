@@ -1,41 +1,60 @@
 import streamlit as st
 import pandas as pd
-import os
 from datetime import datetime
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
-# Define the path to the CSV file where submissions will be stored
-SUBMISSIONS_FILE = r'C:\Users\chine\Desktop\PythonScripts\100DADDY\submissions.csv'
+# Google Sheets setup
+scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+         "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\chine\Desktop\PythonScripts\100DADDY\fresh-gravity-419704-25735f1d7172.json', scope)
+client = gspread.authorize(creds)
+sheet = client.open('submissions').sheet1
 
-# Ensure that all strings that could contain special characters are quoted
-# and that the CSV file is read with the correct delimiter
-def safe_read_csv(file_path):
-    return pd.read_csv(
-        file_path, 
-        encoding='utf-8', 
-        sep=',', 
-        quotechar='"', 
-        skipinitialspace=True
-    )
+st.title('Application Form')
 
-# Ensure that DataFrame is saved with quotes for all string fields
-def safe_to_csv(df, file_path):
-    df.to_csv(
-        file_path, 
-        index=False, 
-        encoding='utf-8', 
-        sep=',', 
-        quotechar='"'
-    )
+# Terms and Conditions text
+terms_and_conditions_text = """
+**Terms and Conditions for Application Form**
 
-# Initialize the submissions file if it doesn't exist
-if not os.path.isfile(SUBMISSIONS_FILE):
-    columns = ['Full Name', 'Date of Birth', 'Email', 'Phone Number', 'Address', 
-               'Occupation', 'Annual Income', 'Previous Experience', 'Description', 'Timestamp']
-    pd.DataFrame([], columns=columns).to_csv(SUBMISSIONS_FILE, index=False, encoding='utf-8', sep=',', quotechar='"')
+Terms and Conditions for Application Form
 
+1. Introduction
+Welcome to our Application Form. By submitting your application, you are agreeing to comply with and be bound by the following terms and conditions of use, which together with our privacy policy govern [Your Company Name]'s relationship with you in relation to this service. If you disagree with any part of these terms and conditions, please do not use our application service.
+
+2. Privacy
+Please review our Privacy Policy, which also governs your visit to our application, to understand our practices.
+
+3. Eligibility
+You must be at least 18 years of age to submit this application. By submitting this application, you represent and warrant that you are of legal age to form a binding contract.
+
+4. Application Submission
+Your application does not guarantee acceptance into our program. We reserve the right to accept or reject applications at our discretion.
+
+5. Accuracy of Information
+You agree that all information you provide will be accurate, complete, and up to date.
+
+6. Intellectual Property Rights
+The content, organization, graphics, design, compilation, and other matters related to our application are protected under applicable copyrights, trademarks, and other proprietary rights.
+
+7. Disclaimer of Warranties and Limitation of Liability
+This application and the information, services, or products available to you through this application are provided on an 'as is' and 'as available' basis without any warranties of any kind, either express or implied.
+
+8. Amendments to Terms and Conditions
+We reserve the right to amend these terms and conditions at any time.
+
+9. Governing Law
+These terms and conditions are governed by the laws of [Your Jurisdiction] without regard to its conflict of law provisions.
+
+10. Contact Information**
+For any questions or concerns regarding these terms and conditions, please contact us at [Your Contact Information].
+"""
+
+
+# Streamlit form
 with st.form(key='application_form'):
     full_name = st.text_input('Full Name')
-    date_of_birth = st.date_input('Date of Birth')
+    date_of_birth = st.date_input('Date of Birth').isoformat()
     email = st.text_input('Email')
     phone_number = st.text_input('Phone Number')
     address = st.text_input('Address')
@@ -46,30 +65,15 @@ with st.form(key='application_form'):
     terms_and_conditions = st.checkbox('I agree to the terms and conditions')
     submit_button = st.form_submit_button(label='Submit')
 
-if submit_button and terms_and_conditions:
-    form_data = pd.DataFrame([{
-        'Full Name': full_name,
-        'Date of Birth': date_of_birth.isoformat(),
-        'Email': email,
-        'Phone Number': phone_number,
-        'Address': address,
-        'Occupation': occupation,
-        'Annual Income': annual_income,
-        'Previous Experience': previous_experience,
-        'Description': description,
-        'Timestamp': datetime.now().isoformat()
-    }])
+    
+st.write(terms_and_conditions_text)
 
-    try:
-        if os.path.isfile(SUBMISSIONS_FILE):
-            submissions_df = safe_read_csv(SUBMISSIONS_FILE)
-            submissions_df = pd.concat([submissions_df, form_data], ignore_index=True)
-        else:
-            submissions_df = form_data
-        safe_to_csv(submissions_df, SUBMISSIONS_FILE)
-        st.success('Thank you for your application. It has been recorded.')
-    except Exception as e:
-        st.error(f'An error occurred when saving your application: {e}')
+
+if submit_button and terms_and_conditions:
+    # Preparing the data to insert into Google Sheets
+    row = [full_name, date_of_birth, email, phone_number, address, occupation, str(annual_income), previous_experience, description, str(datetime.now())]
+    # Inserting the data into the sheet
+    sheet.append_row(row)
+    st.success('Thank you for your application. It has been recorded.')
 elif submit_button:
     st.error('You must agree to the terms and conditions to submit the form.')
-
