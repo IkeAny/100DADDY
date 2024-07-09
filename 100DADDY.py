@@ -54,14 +54,7 @@ For any questions or concerns regarding these terms and conditions, please conta
 # Streamlit form
 with st.form(key='application_form'):
     full_name = st.text_input('Full Name')
-    date_of_birth = st.date_input('Date of Birth').isoformat()
     email = st.text_input('Email')
-    phone_number = st.text_input('Phone Number')
-    address = st.text_input('Address')
-    occupation = st.text_input('Occupation')
-    annual_income = st.number_input('Annual Income', min_value=0.0, format='%f')
-    previous_experience = st.radio('Do you have any previous experience?', ['Yes', 'No'])
-    description = st.text_area('Please provide a brief description of yourself.')
     terms_and_conditions = st.checkbox('I agree to the terms and conditions')
     submit_button = st.form_submit_button(label='Submit')
 
@@ -71,7 +64,7 @@ st.write(terms_and_conditions_text)
 
 if submit_button and terms_and_conditions:
     # Preparing the data to insert into Google Sheets
-    row = [full_name, date_of_birth, email, phone_number, address, occupation, str(annual_income), previous_experience, description, str(datetime.now())]
+    row = [full_name, email, str(datetime.now())]
     # Inserting the data into the sheet
     sheet.append_row(row)
     st.success('Thank you for your application. It has been recorded.')
