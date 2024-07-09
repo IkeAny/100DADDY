@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -16,8 +17,6 @@ st.title('Application Form')
 # Terms and Conditions text
 terms_and_conditions_text = """
 **Terms and Conditions for Application Form**
-
-Terms and Conditions for Application Form
 
 1. Introduction
 Welcome to our Application Form. By submitting your application, you are agreeing to comply with and be bound by the following terms and conditions of use, which together with our privacy policy govern [Your Company Name]'s relationship with you in relation to this service. If you disagree with any part of these terms and conditions, please do not use our application service.
@@ -46,21 +45,20 @@ We reserve the right to amend these terms and conditions at any time.
 9. Governing Law
 These terms and conditions are governed by the laws of [Your Jurisdiction] without regard to its conflict of law provisions.
 
-10. Contact Information**
+10. Contact Information
 For any questions or concerns regarding these terms and conditions, please contact us at [Your Contact Information].
 """
-
 
 # Streamlit form
 with st.form(key='application_form'):
     full_name = st.text_input('Full Name')
     email = st.text_input('Email')
+    
+    with st.expander("Terms and Conditions"):
+        st.write(terms_and_conditions_text)
+        
     terms_and_conditions = st.checkbox('I agree to the terms and conditions')
     submit_button = st.form_submit_button(label='Submit')
-
-    
-st.write(terms_and_conditions_text)
-
 
 if submit_button and terms_and_conditions:
     # Preparing the data to insert into Google Sheets
